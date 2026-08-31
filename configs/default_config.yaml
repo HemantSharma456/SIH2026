@@ -1,0 +1,19 @@
+# Project Configuration for Traffic Route Optimization
+# Phase 1: Core Graph Ingestion & Study Area Setup
+
+study_area:
+  # Primary query location for OSMnx
+  place_name: "Connaught Place, New Delhi, India"
+  # Network type for OSMnx: 'drive' for drivable roads respecting one-way constraints
+  network_type: "drive"
+  # Fallback bounding box or buffer distance in meters if needed
+  buffer_dist_meters: 1000
+
+cache:
+  enabled: true
+  cache_dir: "data/cache"
+  filename_prefix: "connaught_place_drive"
+
+visualization:
+  export_plot: true
+  output_image: "data/inspection_graph.png"

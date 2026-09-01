@@ -1,6 +1,6 @@
 """Validation and diagnostic routines for road network graphs."""
 
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 import networkx as nx
 
 
@@ -236,3 +236,101 @@ def get_graph_summary(G: nx.Graph) -> Dict[str, Any]:
         "weakly_connected_components": validation_info["num_weakly_connected_components"],
         "largest_wcc_node_count": validation_info["largest_wcc_size"],
     }
+
+
+def validate_route(
+    G: Union[nx.DiGraph, nx.MultiDiGraph],
+    route: List[Any],
+    origin: Optional[Any] = None,
+    destination: Optional[Any] = None,
+    edge_keys: Optional[List[Any]] = None,
+    traffic_states: Optional[Dict[Tuple[Any, Any], Any]] = None,
+) -> Dict[str, Any]:
+    """Validate that a candidate route is continuous, unblocked, and respects one-way streets.
+
+    Checks:
+    1. Route is a non-empty sequence of nodes.
+    2. Starts at expected origin and ends at expected destination.
+    3. Every consecutive pair (u, v) is a valid directed edge in G.
+    4. No edges along the route are closed (in attributes or traffic_states).
+    5. Computes total physical distance along the route.
+
+    Args:
+        G: Directed road graph.
+        route: Sequence of node IDs.
+        origin: Expected start node (optional check).
+        destination: Expected end node (optional check).
+        edge_keys: Optional sequence of edge keys for MultiDiGraph edges.
+        traffic_states: Optional dynamic traffic conditions.
+
+    Returns:
+        Dictionary containing is_valid, reason, total_distance_meters, and step_details.
+    """
+    if not route or len(route) == 0:
+        return {"is_valid": False, "reason": "Route is empty.", "total_distance_meters": 0.0}
+
+    if origin is not None and route[0] != origin:
+        return {
+            "is_valid": False,
+            "reason": f"Route starts at {route[0]}, expected origin {origin}.",
+            "total_distance_meters": 0.0,
+        }
+
+    if destination is not None and route[-1] != destination:
+        return {
+            "is_valid": False,
+            "reason": f"Route ends at {route[-1]}, expected destination {destination}.",
+            "total_distance_meters": 0.0,
+        }
+
+    # Single node path
+    if len(route) == 1:
+        if route[0] not in G:
+            return {"is_valid": False, "reason": f"Node {route[0]} does not exist in graph.", "total_distance_meters": 0.0}
+        return {"is_valid": True, "reason": "Single-node path.", "total_distance_meters": 0.0}
+
+    traffic_states = traffic_states or {}
+    total_dist = 0.0
+    steps = []
+
+    for i in range(len(route) - 1):
+        u, v = route[i], route[i + 1]
+
+        if not G.has_edge(u, v):
+            return {
+                "is_valid": False,
+                "reason": f"Disconnected step or one-way violation: no directed edge from {u} to {v}.",
+                "total_distance_meters": total_dist,
+            }
+
+        # Handle edge attributes
+        if G.is_multigraph():
+            edge_dict = G[u][v]
+            key = edge_keys[i] if (edge_keys and i < len(edge_keys)) else next(iter(edge_dict.keys()))
+            data = edge_dict.get(key, next(iter(edge_dict.values())))
+        else:
+            key = 0
+            data = G[u][v]
+
+        # Check closure
+        state = traffic_states.get((u, v, key)) or traffic_states.get((u, v))
+        is_closed = (state and state.is_closed) or data.get("closed", False) is True
+        if is_closed:
+            return {
+                "is_valid": False,
+                "reason": f"Route uses closed edge ({u} -> {v}, key={key}).",
+                "total_distance_meters": total_dist,
+            }
+
+        edge_len = float(data.get("length", 0.0))
+        total_dist += edge_len
+        steps.append({"u": u, "v": v, "key": key, "length": edge_len})
+
+    return {
+        "is_valid": True,
+        "reason": "Route is a continuous, valid directed walk with all edges open.",
+        "total_distance_meters": round(total_dist, 2),
+        "steps_count": len(steps),
+        "step_details": steps,
+    }
+

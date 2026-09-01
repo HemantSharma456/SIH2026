@@ -1,0 +1,189 @@
+# ============================================================
+# Python
+# ============================================================
+
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# Type checkers / linters
+.mypy_cache/
+.pyre/
+.ruff_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+
+# ============================================================
+# Environment / Secrets
+# ============================================================
+
+.env
+.env.*
+!.env.example
+
+# API keys / credentials
+*.pem
+*.key
+credentials.json
+secrets.json
+
+
+# ============================================================
+# Data
+# ============================================================
+
+# Raw and processed datasets
+data/raw/*
+data/processed/*
+
+# Keep directory structure
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Large generated datasets
+*.csv
+*.parquet
+*.feather
+*.h5
+*.hdf5
+*.pkl
+*.pickle
+
+# ML model files
+*.joblib
+*.onnx
+*.pt
+*.pth
+*.ckpt
+
+
+# ============================================================
+# OSM / Geospatial generated files
+# ============================================================
+
+*.osm
+*.osm.pbf
+*.graphml
+*.geojson
+*.gpkg
+*.shp
+*.shx
+*.dbf
+*.cpg
+*.prj
+
+
+# ============================================================
+# SUMO generated files
+# ============================================================
+
+*.net.xml
+*.rou.xml
+*.sumocfg
+*.trips.xml
+*.flow.xml
+*.add.xml
+
+# SUMO outputs / generated simulation data
+data/sumo_networks/*
+data/sumo_outputs/*
+
+!data/sumo_networks/.gitkeep
+!data/sumo_outputs/.gitkeep
+
+
+# ============================================================
+# Logs / generated outputs
+# ============================================================
+
+*.log
+logs/
+
+outputs/
+results/
+
+# Benchmark generated results
+benchmarks/results/
+benchmarks/outputs/
+
+
+# ============================================================
+# Node / React
+# ============================================================
+
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+frontend/dist/
+frontend/build/
+
+# Environment files
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+
+# ============================================================
+# IDE / Editor
+# ============================================================
+
+.vscode/
+.idea/
+
+# Antigravity / local IDE metadata
+*.code-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+
+# ============================================================
+# Temporary files
+# ============================================================
+
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.cache/
+temp/
+tmp/
+
+
+# ============================================================
+# Claude Code
+# ============================================================
+
+# Local Claude settings
+.claude/settings.local.json
